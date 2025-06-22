@@ -56,7 +56,10 @@ export default function RegisterForm() {
           router.push('/dashboard');
         },
         onError: (ctx) => {
-          console.log(ctx);
+          if (ctx.error.code === 'USER_ALREADY_EXISTS') {
+            toast.error('Email já cadastrado');
+            return;
+          }
           toast.error('Erro ao criar conta: ' + ctx.error.message);
         },
       },

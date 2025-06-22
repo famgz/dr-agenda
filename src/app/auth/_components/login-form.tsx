@@ -54,7 +54,7 @@ export default function LoginForm() {
         },
         onError: (ctx) => {
           console.log(ctx.error.message);
-          toast.error('Erro ao realizar login: ' + ctx.error.message);
+          toast.error('Email ou senha inválido');
         },
       },
     );
