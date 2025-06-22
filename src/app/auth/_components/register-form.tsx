@@ -1,5 +1,6 @@
 'use client';
 
+import LoaderIcon from '@/components/loader';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -29,6 +31,7 @@ const formSchema = z.object({
 });
 
 export default function RegisterForm() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,7 +52,8 @@ export default function RegisterForm() {
       },
       {
         onSuccess: (ctx) => {
-          console.log(ctx);
+          console.log('Conta criada com sucesso!');
+          router.push('/dashboard');
         },
         onError: (ctx) => {
           console.log(ctx);
@@ -111,8 +115,12 @@ export default function RegisterForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Criar Conta
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? <LoaderIcon /> : 'Criar Conta'}
             </Button>
           </form>
         </Form>
