@@ -1,16 +1,5 @@
-'use client';
-
 import LoginForm from '@/app/auth/_components/login-form';
 import RegisterForm from '@/app/auth/_components/register-form';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function AuthPage() {

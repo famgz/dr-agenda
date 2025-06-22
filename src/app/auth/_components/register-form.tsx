@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -37,8 +38,25 @@ export default function RegisterForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { name, email, password } = values;
+    const { data, error } = await authClient.signUp.email(
+      {
+        name,
+        email,
+        password,
+        callbackURL: '/dashboard',
+      },
+      {
+        onSuccess: (ctx) => {
+          console.log(ctx);
+        },
+        onError: (ctx) => {
+          console.log(ctx);
+          alert(ctx.error.message);
+        },
+      },
+    );
   }
 
   return (

@@ -38,3 +38,10 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 `npx shadcn@latest add input label`
 
 `npx shadcn@latest add form`
+
+
+## Auth
+
+`npm i better-auth`
+
+`npx @better-auth/cli@latest generate`

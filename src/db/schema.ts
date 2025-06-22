@@ -9,11 +9,17 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
-const id = uuid('id').defaultRandom().primaryKey();
+import { boolean } from 'drizzle-orm/pg-core';
+
+const idUUID = uuid('id').defaultRandom().primaryKey();
+const idText = text('id').primaryKey();
 const createdAt = timestamp('created_at').defaultNow().notNull();
 const updatedAt = timestamp('updated_at')
   .defaultNow()
   .$onUpdate(() => new Date());
+const userId = text('user_id')
+  .notNull()
+  .references(() => userTable.id, { onDelete: 'cascade' });
 const clinicId = uuid('clinic_id')
   .notNull()
   .references(() => clinicTable.id, { onDelete: 'cascade' });
@@ -26,8 +32,58 @@ const doctorId = uuid('doctor_id')
 
 export const sexEnum = pgEnum('patient_sex', ['male', 'female']);
 
+// Tables
+
+export const sessionTable = pgTable('session', {
+  id: idText,
+  expiresAt: timestamp('expires_at').notNull(),
+  token: text('token').notNull().unique(),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  userId,
+});
+
+export const accountTable = pgTable('account', {
+  id: idText,
+  accountId: text('account_id').notNull(),
+  providerId: text('provider_id').notNull(),
+  userId,
+  accessToken: text('access_token'),
+  refreshToken: text('refresh_token'),
+  idToken: text('id_token'),
+  accessTokenExpiresAt: timestamp('access_token_expires_at'),
+  refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+  scope: text('scope'),
+  password: text('password'),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+});
+
+export const verificationTable = pgTable('verification', {
+  id: idText,
+  identifier: text('identifier').notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+  updatedAt: timestamp('updated_at').$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+});
+
 export const userTable = pgTable('user', {
-  id,
+  id: idText,
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  emailVerified: boolean('email_verified')
+    .$defaultFn(() => false)
+    .notNull(),
+  image: text('image'),
+  createdAt,
+  updatedAt,
 });
 
 export const userTableRelations = relations(userTable, ({ many }) => ({
@@ -35,7 +91,7 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
 }));
 
 export const clinicTable = pgTable('clinic', {
-  id,
+  id: idUUID,
   name: text('name').notNull(),
   createdAt,
   updatedAt,
@@ -49,9 +105,7 @@ export const clinicTableRelations = relations(clinicTable, ({ many }) => ({
 }));
 
 export const usersToClinicsTable = pgTable('users_to_clinics', {
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => userTable.id),
+  userId,
   clinicId: uuid('clinic_id')
     .notNull()
     .references(() => clinicTable.id),
@@ -74,7 +128,7 @@ export const usersToClinicsTableRelations = relations(
 );
 
 export const doctorTable = pgTable('doctor', {
-  id,
+  id: idUUID,
   name: text('name').notNull(),
   avatarImageUrl: text('avatar_image_url'),
   availableFromTime: time('available_from_time').notNull(),
@@ -97,7 +151,7 @@ export const doctorTableRelations = relations(doctorTable, ({ many, one }) => ({
 }));
 
 export const patientTable = pgTable('patient', {
-  id,
+  id: idUUID,
   name: text('name').notNull(),
   email: text('email').notNull(),
   phoneNumber: text('phone_number').notNull(),
@@ -115,7 +169,7 @@ export const patientTableRelations = relations(patientTable, ({ one }) => ({
 }));
 
 export const appointmentTable = pgTable('appointment', {
-  id,
+  id: idUUID,
   date: timestamp('date').notNull(),
   clinicId,
   patientId,
