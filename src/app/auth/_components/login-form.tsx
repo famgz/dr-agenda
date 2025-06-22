@@ -1,5 +1,6 @@
 'use client';
 
+import LoaderIcon from '@/components/loader';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -17,8 +18,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -27,6 +31,7 @@ const formSchema = z.object({
 });
 
 export default function LoginForm() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,8 +40,24 @@ export default function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { email, password } = values;
+    const { data, error } = await authClient.signIn.email(
+      {
+        email,
+        password,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Login realizado com sucesso!');
+          router.push('/dashboard');
+        },
+        onError: (ctx) => {
+          console.log(ctx.error.message);
+          toast.error('Erro ao realizar login: ' + ctx.error.message);
+        },
+      },
+    );
   }
 
   return (
@@ -78,8 +99,12 @@ export default function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Entrar
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? <LoaderIcon /> : 'Entrar'}
             </Button>
           </form>
         </Form>

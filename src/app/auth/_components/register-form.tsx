@@ -22,6 +22,7 @@ import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -48,16 +49,15 @@ export default function RegisterForm() {
         name,
         email,
         password,
-        callbackURL: '/dashboard',
       },
       {
         onSuccess: (ctx) => {
-          console.log('Conta criada com sucesso!');
+          toast.success('Conta criada com sucesso!');
           router.push('/dashboard');
         },
         onError: (ctx) => {
           console.log(ctx);
-          alert(ctx.error.message);
+          toast.error('Erro ao criar conta: ' + ctx.error.message);
         },
       },
     );

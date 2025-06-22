@@ -39,6 +39,8 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 
 `npx shadcn@latest add form`
 
+`npx shadcn@latest add sonner`
+
 
 ## Auth
 
