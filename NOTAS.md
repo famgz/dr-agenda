@@ -30,3 +30,11 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 `npx shadcn@latest init`
 
 `npx shadcn@latest add button`
+
+`npx shadcn@latest add tabs`
+
+`npx shadcn@latest add card`
+
+`npx shadcn@latest add input label`
+
+`npx shadcn@latest add form`
