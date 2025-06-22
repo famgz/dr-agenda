@@ -23,3 +23,10 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 `npx drizzle-kit push` after set schema
 
 `npx drizzle-kit studio`
+
+
+## Shadcn
+
+`npx shadcn@latest init`
+
+`npx shadcn@latest add button`
