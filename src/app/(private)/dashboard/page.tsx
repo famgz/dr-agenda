@@ -28,7 +28,6 @@ export default async function DashboardPage() {
         height={48}
         width={48}
       />
-      <SignOutButton />
     </div>
   );
 }
