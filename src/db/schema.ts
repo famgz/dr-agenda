@@ -106,9 +106,7 @@ export const clinicTableRelations = relations(clinicTable, ({ many }) => ({
 
 export const usersToClinicsTable = pgTable('users_to_clinics', {
   userId,
-  clinicId: uuid('clinic_id')
-    .notNull()
-    .references(() => clinicTable.id),
+  clinicId,
   createdAt,
   updatedAt,
 });
