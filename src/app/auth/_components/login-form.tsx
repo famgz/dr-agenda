@@ -20,10 +20,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import googleIcon from '@/assets/icons/google.svg';
+import { auth } from '@/lib/auth';
 
 const formSchema = z.object({
   email: z.string().trim().min(1, 'Campo obrigatório').email('Email inválido'),
@@ -40,9 +43,9 @@ export default function LoginForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function handleCredentialsLogin(values: z.infer<typeof formSchema>) {
     const { email, password } = values;
-    const { data, error } = await authClient.signIn.email(
+    await authClient.signIn.email(
       {
         email,
         password,
@@ -60,6 +63,13 @@ export default function LoginForm() {
     );
   }
 
+  async function handleGoogleLogin() {
+    await authClient.signIn.social({
+      provider: 'google',
+      callbackURL: '/dashboard',
+    });
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -68,7 +78,10 @@ export default function LoginForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form
+            onSubmit={form.handleSubmit(handleCredentialsLogin)}
+            className="space-y-5"
+          >
             <FormField
               control={form.control}
               name="email"
@@ -105,6 +118,20 @@ export default function LoginForm() {
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? <LoaderIcon /> : 'Entrar'}
+            </Button>
+            <Button
+              type="button"
+              className="w-full"
+              variant={'outline'}
+              onClick={handleGoogleLogin}
+            >
+              <Image
+                src={googleIcon}
+                alt="Google Logo"
+                height={16}
+                width={16}
+              />
+              Entrar com Google
             </Button>
           </form>
         </Form>
