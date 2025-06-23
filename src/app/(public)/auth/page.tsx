@@ -1,5 +1,5 @@
-import LoginForm from '@/app/auth/_components/login-form';
-import RegisterForm from '@/app/auth/_components/register-form';
+import LoginForm from '@/app/(public)/auth/_components/login-form';
+import RegisterForm from '@/app/(public)/auth/_components/register-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
