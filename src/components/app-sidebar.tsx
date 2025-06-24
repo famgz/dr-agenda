@@ -9,12 +9,11 @@ import {
 
 import logoFullIcon from '@/assets/icons/logo-full.svg';
 import logoIcon from '@/assets/icons/logo.svg';
+import SignOutButton from '@/components/sign-out-button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -30,12 +29,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { authClient } from '@/lib/auth-client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import SignOutButton from '@/components/sign-out-button';
-import { authClient } from '@/lib/auth-client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -67,7 +64,7 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const session = authClient.useSession();
   const user = session.data?.user;
-  const clinic = user?.clinic.clinic;
+  const clinic = user?.clinic?.clinic;
 
   return (
     <Sidebar collapsible="icon">

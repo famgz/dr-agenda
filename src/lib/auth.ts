@@ -37,10 +37,11 @@ export const auth = betterAuth({
   },
   plugins: [
     customSession(async ({ user, session }) => {
-      const [clinic] = await db.query.usersToClinicsTable.findMany({
+      const clinics = await db.query.usersToClinicsTable.findMany({
         where: eq(schema.usersToClinicsTable.userId, user.id),
         with: { clinic: true },
       });
+      const clinic = clinics?.[0];
       return { user: { ...user, clinic }, session };
     }),
   ],

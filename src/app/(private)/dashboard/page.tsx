@@ -1,19 +1,12 @@
 import { getSessionUserElseRedirect } from '@/actions/user';
-import SignOutButton from '@/components/sign-out-button';
-import { db } from '@/db';
-import { usersToClinicsTable } from '@/db/schema';
-import { eq } from 'drizzle-orm';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {
   const user = await getSessionUserElseRedirect();
+  const clinic = user.clinic;
 
-  const clinics = await db.query.usersToClinicsTable.findMany({
-    where: eq(usersToClinicsTable.userId, user.id),
-  });
-
-  if (clinics.length === 0) {
+  if (!clinic) {
     redirect('/clinic-form');
   }
 
