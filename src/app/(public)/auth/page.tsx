@@ -1,16 +1,13 @@
+import { getSessionUser } from '@/actions/user';
 import LoginForm from '@/app/(public)/auth/_components/login-form';
 import RegisterForm from '@/app/(public)/auth/_components/register-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export default async function AuthPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const user = await getSessionUser();
 
-  if (session?.user) {
+  if (user) {
     redirect('/dashboard');
   }
 

@@ -1,4 +1,4 @@
-import { getSessionUserElseRedirect } from '@/actions/user';
+import { getSessionUserClinicElseRedirect } from '@/actions/clinic';
 import UpsertDoctorFormDialog from '@/app/(private)/doctors/_components/upsert-doctor-form-dialog';
 import {
   PageActions,
@@ -9,25 +9,29 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/components/page-container';
+import SpecialtyCardsSelect from '@/components/specialty-cards-select';
 import { Button } from '@/components/ui/button';
+import { db } from '@/db';
+import { doctorTable } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import { PlusIcon } from 'lucide-react';
 
-import { redirect } from 'next/navigation';
-
 export default async function DoctorsPage() {
-  const user = await getSessionUserElseRedirect();
-  const clinic = user.clinic;
+  const clinic = await getSessionUserClinicElseRedirect();
 
-  if (!clinic) {
-    redirect('/clinic-form');
-  }
+  const doctors = await db.query.doctorTable.findMany({
+    where: eq(doctorTable.clinicId, clinic.clinicId),
+  });
 
   return (
     <PageContainer>
       <PageHeader>
         <PageHeaderContent>
           <PageTitle>Médicos</PageTitle>
-          <PageDescription>Gerencie os médicos da sua clínica</PageDescription>
+          <PageDescription>
+            Gerencie os médicos da clínica{' '}
+            <span className="font-semibold">{clinic.clinic.name}</span>
+          </PageDescription>
         </PageHeaderContent>
         <PageActions>
           <UpsertDoctorFormDialog>
@@ -40,6 +44,9 @@ export default async function DoctorsPage() {
       </PageHeader>
       <PageContent>
         <h1>Médicos</h1>
+        <SpecialtyCardsSelect>
+          <Button>Especialidades</Button>
+        </SpecialtyCardsSelect>
       </PageContent>
     </PageContainer>
   );

@@ -1,6 +1,6 @@
 'use server';
 
-import { getSessionUserElseThrow } from '@/actions/user';
+import { getSessionUserClinicElseThrow } from '@/actions/clinic';
 import { db } from '@/db';
 import { doctorTable } from '@/db/schema';
 import { actionClient } from '@/lib/safe-action';
@@ -42,8 +42,7 @@ const upsertDoctorSchema = z
 export const upsertDoctor = actionClient
   .inputSchema(upsertDoctorSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getSessionUserElseThrow();
-    const clinic = user.clinic;
+    const clinic = await getSessionUserClinicElseThrow();
     const data = { ...parsedInput, clinicId: clinic.clinicId };
     await db
       .insert(doctorTable)

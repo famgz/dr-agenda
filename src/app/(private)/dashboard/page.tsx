@@ -1,14 +1,10 @@
+import { getSessionUserClinicElseRedirect } from '@/actions/clinic';
 import { getSessionUserElseRedirect } from '@/actions/user';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {
   const user = await getSessionUserElseRedirect();
-  const clinic = user.clinic;
-
-  if (!clinic) {
-    redirect('/clinic-form');
-  }
+  const clinic = await getSessionUserClinicElseRedirect();
 
   return (
     <div>
