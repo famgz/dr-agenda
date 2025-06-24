@@ -1,6 +1,6 @@
 'use client';
 
-import { createClinic } from '@/actions/create-clinic';
+import { createClinic } from '@/actions/clinic';
 import LoaderIcon from '@/components/loader';
 import {
   AlertDialog,

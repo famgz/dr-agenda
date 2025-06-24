@@ -19,10 +19,10 @@ export async function getSessionUserElseThrow() {
   return user;
 }
 
-export async function getSessionUserElseRedirect() {
+export async function getSessionUserElseRedirect(redirectTo = '/auth') {
   const user = await getSessionUser();
   if (!user) {
-    redirect('/auth');
+    redirect(redirectTo);
   }
   return user;
 }
