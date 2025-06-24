@@ -35,7 +35,7 @@ import { Doctor } from '@/types/drizzle';
 import { generateTimeArray } from '@/utils/time';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAction } from 'next-safe-action/hooks';
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 import { toast } from 'sonner';
@@ -49,6 +49,7 @@ const ScheduleTimes = {
 
 const formSchema = z
   .object({
+    id: z.string().optional(),
     name: z.string().trim().min(1, 'Campo obrigatório'),
     specialty: z.string().trim().min(1, 'Campo obrigatório'),
     appointmentPriceInCents: z
@@ -91,16 +92,23 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      specialty: '',
-      appointmentPriceInCents: 0,
-      availableFromWeekDay: -1,
-      availableToWeekDay: -1,
-      availableFromTime: '',
-      availableToTime: '',
-    },
+    defaultValues: getDefaultValues(),
   });
+
+  function getDefaultValues() {
+    return {
+      id: doctor?.id ?? '',
+      name: doctor?.name ?? '',
+      specialty: doctor?.specialty ?? '',
+      appointmentPriceInCents: doctor?.appointmentPriceInCents
+        ? doctor.appointmentPriceInCents / 100
+        : 0,
+      availableFromWeekDay: doctor?.availableFromWeekDay ?? -1,
+      availableToWeekDay: doctor?.availableToWeekDay ?? -1,
+      availableFromTime: doctor?.availableFromTime ?? '',
+      availableToTime: doctor?.availableToTime ?? '',
+    };
+  }
 
   const submitAction = useAction(upsertDoctor, {
     onSuccess: () => {
@@ -122,14 +130,14 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
     [form.formState.isSubmitting, submitAction.isPending],
   );
 
+  useEffect(() => {
+    if (open) {
+      form.reset(getDefaultValues());
+    }
+  }, [open, doctor]);
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(value) => {
-        form.reset();
-        setOpen(value);
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
