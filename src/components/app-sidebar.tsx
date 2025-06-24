@@ -35,7 +35,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import SignOutButton from '@/components/sign-out-button';
-// Menu items.
+import { authClient } from '@/lib/auth-client';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 const items = [
   {
     title: 'Dashboard',
@@ -62,6 +65,9 @@ const items = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { open } = useSidebar();
+  const session = authClient.useSession();
+  const user = session.data?.user;
+  const clinic = user?.clinic.clinic;
 
   return (
     <Sidebar collapsible="icon">
@@ -99,7 +105,18 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button>Clínica</Button>
+                <SidebarMenuButton size={'lg'}>
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm">{clinic?.name}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {user?.email}
+                    </p>
+                  </div>
+                </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem>
