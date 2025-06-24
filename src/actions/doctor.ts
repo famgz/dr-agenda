@@ -4,6 +4,7 @@ import { getSessionUserClinicElseThrow } from '@/actions/session';
 import { db } from '@/db';
 import { doctorTable } from '@/db/schema';
 import { actionClient } from '@/lib/safe-action';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 const upsertDoctorSchema = z
@@ -51,4 +52,5 @@ export const upsertDoctor = actionClient
         target: [doctorTable.id],
         set: parsedInput,
       });
+    revalidatePath('/doctors');
   });
