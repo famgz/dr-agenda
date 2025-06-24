@@ -1,5 +1,9 @@
-import { Button } from '@/components/ui/button';
+import { getSessionUser } from '@/actions/user';
+import { redirect } from 'next/navigation';
 
-export default function Home() {
-  return <Button>Hello</Button>;
+export default async function Home() {
+  const user = await getSessionUser();
+  if (user) {
+    redirect('/dashboard');
+  } else redirect('/auth');
 }
