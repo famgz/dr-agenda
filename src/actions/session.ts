@@ -26,3 +26,25 @@ export async function getSessionUserElseRedirect(redirectTo = '/auth') {
   }
   return user;
 }
+
+export async function getSessionUserClinicElseThrow(
+  message = 'Clinic not found',
+) {
+  const user = await getSessionUserElseThrow();
+  const clinic = user.clinic;
+  if (!clinic) {
+    throw new Error(message);
+  }
+  return clinic;
+}
+
+export async function getSessionUserClinicElseRedirect(
+  redirectTo = '/clinic-form',
+) {
+  const user = await getSessionUserElseRedirect();
+  const clinic = user.clinic;
+  if (!clinic) {
+    redirect(redirectTo);
+  }
+  return clinic;
+}

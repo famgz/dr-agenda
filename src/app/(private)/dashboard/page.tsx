@@ -1,5 +1,5 @@
-import { getSessionUserClinicElseRedirect } from '@/actions/clinic';
-import { getSessionUserElseRedirect } from '@/actions/user';
+import { getSessionUserClinicElseRedirect } from '@/actions/session';
+import { getSessionUserElseRedirect } from '@/actions/session';
 import Image from 'next/image';
 
 export default async function DashboardPage() {

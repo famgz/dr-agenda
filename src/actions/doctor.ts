@@ -1,6 +1,6 @@
 'use server';
 
-import { getSessionUserClinicElseThrow } from '@/actions/clinic';
+import { getSessionUserClinicElseThrow } from '@/actions/session';
 import { db } from '@/db';
 import { doctorTable } from '@/db/schema';
 import { actionClient } from '@/lib/safe-action';

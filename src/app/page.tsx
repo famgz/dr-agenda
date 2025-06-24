@@ -1,4 +1,4 @@
-import { getSessionUser } from '@/actions/user';
+import { getSessionUser } from '@/actions/session';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {

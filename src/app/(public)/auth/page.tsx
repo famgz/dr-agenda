@@ -1,4 +1,4 @@
-import { getSessionUser } from '@/actions/user';
+import { getSessionUser } from '@/actions/session';
 import LoginForm from '@/app/(public)/auth/_components/login-form';
 import RegisterForm from '@/app/(public)/auth/_components/register-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
