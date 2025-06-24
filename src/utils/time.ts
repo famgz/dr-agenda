@@ -1,3 +1,5 @@
+import { weekDays } from '@/constants/weekdays';
+
 export function generateTimeArray(
   startHour: number,
   endHour: number,
@@ -30,4 +32,14 @@ export function generateTimeArray(
     currentMinutes += intervalMinutes;
   }
   return times;
+}
+
+export function getWeekDayByNumber(weekDayInNumber: number) {
+  return (
+    weekDays.find((x) => x.value === weekDayInNumber.toString())?.label ?? '-'
+  );
+}
+
+export function reduceDoctorTimeString(time: string) {
+  return time.slice(0, 5);
 }

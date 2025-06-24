@@ -49,6 +49,10 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 
 `npx shadcn@latest add select`
 
+`npx shadcn@latest add badge`
+
+`npx shadcn@latest add separator`
+
 
 ## Auth
 

@@ -1,4 +1,5 @@
-import { getSessionUserClinicElseRedirect } from '@/actions/clinic';
+import { getSessionUserClinicElseRedirect } from '@/actions/session';
+import DoctorCard from '@/app/(private)/doctors/_components/doctor-card';
 import UpsertDoctorFormDialog from '@/app/(private)/doctors/_components/upsert-doctor-form-dialog';
 import {
   PageActions,
@@ -9,7 +10,6 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/components/page-container';
-import SpecialtyCardsSelect from '@/components/specialty-cards-select';
 import { Button } from '@/components/ui/button';
 import { db } from '@/db';
 import { doctorTable } from '@/db/schema';
@@ -42,11 +42,10 @@ export default async function DoctorsPage() {
           </UpsertDoctorFormDialog>
         </PageActions>
       </PageHeader>
-      <PageContent>
-        <h1>Médicos</h1>
-        <SpecialtyCardsSelect>
-          <Button>Especialidades</Button>
-        </SpecialtyCardsSelect>
+      <PageContent className="grid gap-3 !space-y-0 sm:grid-cols-3 xl:grid-cols-4">
+        {doctors.map((doctor) => (
+          <DoctorCard doctor={doctor} key={doctor.id} />
+        ))}
       </PageContent>
     </PageContainer>
   );
