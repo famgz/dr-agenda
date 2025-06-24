@@ -32,7 +32,7 @@ export default function SpecialtyCardsSelect({
   const [selected, setSelected] = useState(initialValue);
 
   const selectedItem = useMemo(
-    () => medicalSpecialties.find((x) => x.value === selected),
+    () => medicalSpecialties.find((x) => x.label === selected),
     [selected],
   );
 
@@ -41,7 +41,12 @@ export default function SpecialtyCardsSelect({
       <DialogTrigger asChild>
         <Button
           variant={'outline'}
-          className="text-muted-foreground justify-start truncate px-3 font-normal"
+          className={cn(
+            'text-muted-foreground justify-start truncate px-3 font-normal',
+            {
+              'text-foreground': selected,
+            },
+          )}
         >
           {selectedItem?.label || 'Selecione uma especialidade'}
         </Button>
@@ -55,10 +60,10 @@ export default function SpecialtyCardsSelect({
         </DialogHeader>
         <div className="flex-center mx-auto flex-wrap gap-2">
           {medicalSpecialties.map((specialty) => {
-            const isSelected = selected === specialty.value;
+            const isSelected = selected === specialty.label;
             return (
               <Card
-                key={specialty.value}
+                key={specialty.label}
                 className={cn(
                   'flex-center aspect-square size-26 cursor-pointer gap-1 p-2',
                   {
@@ -66,10 +71,10 @@ export default function SpecialtyCardsSelect({
                   },
                 )}
                 onClick={() => {
-                  const value =
-                    selected === specialty.value ? '' : specialty.value;
-                  setSelected(value);
-                  onSelect?.(value);
+                  const label =
+                    selected === specialty.label ? '' : specialty.label;
+                  setSelected(label);
+                  onSelect?.(label);
                 }}
               >
                 <CardHeader className="sr-only p-0">

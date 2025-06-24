@@ -31,201 +31,164 @@ import {
 const DefaultIcon = Stethoscope;
 
 export const medicalSpecialties = [
-  { value: 'ALERGOLOGIA', label: 'Alergologia', icon: WheatOff },
+  { label: 'Alergologia', icon: WheatOff },
   {
-    value: 'ANESTESIOLOGIA',
     label: 'Anestesiologia',
     icon: Syringe,
   },
-  { value: 'ANGIOLOGIA', label: 'Angiologia', icon: HeartPulse },
+  { label: 'Angiologia', icon: HeartPulse },
   {
-    value: 'CANCEROLOGIA',
     label: 'Cancerologia',
     icon: DefaultIcon,
   },
   {
-    value: 'CARDIOLOGIA',
     label: 'Cardiologia',
     icon: HeartPulse,
   },
   {
-    value: 'CIRURGIA_CARDIOVASCULAR',
     label: 'Cirurgia Cardiovascular',
     icon: Slice,
   },
   {
-    value: 'CIRURGIA_CABECA_PESCOCO',
     label: 'Cirurgia de Cabeça e Pescoço',
     icon: Slice,
   },
   {
-    value: 'CIRURGIA_DIGESTIVA',
     label: 'Cirurgia do Aparelho Digestivo',
     icon: Slice,
   },
   {
-    value: 'CIRURGIA_GERAL',
     label: 'Cirurgia Geral',
     icon: Slice,
   },
   {
-    value: 'CIRURGIA_PEDIATRICA',
     label: 'Cirurgia Pediátrica',
     icon: Baby,
   },
   {
-    value: 'CIRURGIA_PLASTICA',
     label: 'Cirurgia Plástica',
     icon: Slice,
   },
   {
-    value: 'CIRURGIA_TORACICA',
     label: 'Cirurgia Torácica',
     icon: Slice,
   },
   {
-    value: 'CIRURGIA_VASCULAR',
     label: 'Cirurgia Vascular',
     icon: Slice,
   },
   {
-    value: 'CLINICA_MEDICA',
     label: 'Clínica Médica',
     icon: Stethoscope,
   },
   {
-    value: 'DERMATOLOGIA',
     label: 'Dermatologia',
     icon: Armchair,
   },
   {
-    value: 'ENDOCRINOLOGIA',
     label: 'Endocrinologia e Metabologia',
     icon: Activity,
   },
-  { value: 'ENDOSCOPIA', label: 'Endoscopia', icon: Microscope },
+  { label: 'Endoscopia', icon: Microscope },
   {
-    value: 'GASTROENTEROLOGIA',
     label: 'Gastroenterologia',
     icon: Stethoscope,
   },
-  { value: 'GERIATRIA', label: 'Geriatria', icon: Home },
+  { label: 'Geriatria', icon: Home },
   {
-    value: 'GINECOLOGIA_OBSTETRICIA',
     label: 'Ginecologia e Obstetrícia',
     icon: Baby,
   },
   {
-    value: 'HEMATOLOGIA',
     label: 'Hematologia e Hemoterapia',
     icon: Droplets,
   },
   {
-    value: 'HEPATOLOGIA',
     label: 'Hepatologia',
     icon: DefaultIcon,
   },
   {
-    value: 'HOMEOPATIA',
     label: 'Homeopatia',
     icon: DefaultIcon,
   },
-  { value: 'INFECTOLOGIA', label: 'Infectologia', icon: Shield },
+  { label: 'Infectologia', icon: Shield },
   {
-    value: 'MASTOLOGIA',
     label: 'Mastologia',
     icon: DefaultIcon,
   },
   {
-    value: 'MEDICINA_DE_EMERGENCIA',
     label: 'Medicina de Emergência',
     icon: Shield,
   },
   {
-    value: 'MEDICINA_DO_ESPORTO',
     label: 'Medicina do Esporte',
     icon: Dumbbell,
   },
   {
-    value: 'MEDICINA_DO_TRABALHO',
     label: 'Medicina do Trabalho',
     icon: Factory,
   },
   {
-    value: 'MEDICINA_DE_FAMILIA',
     label: 'Medicina da Família e Comunidade',
     icon: Home,
   },
   {
-    value: 'MEDICINA_FISICA_REABILITACAO',
     label: 'Medicina Física e Reabilitação',
     icon: Armchair,
   },
   {
-    value: 'MEDICINA_INTENSIVA',
     label: 'Medicina Intensiva',
     icon: Activity,
   },
   {
-    value: 'MEDICINA_LEGAL',
     label: 'Medicina Legal e Perícia Médica',
     icon: Gavel,
   },
   {
-    value: 'NEFROLOGIA',
     label: 'Nefrologia',
     icon: DefaultIcon,
   },
   {
-    value: 'NEUROCIRURGIA',
     label: 'Neurocirurgia',
     icon: Brain,
   },
-  { value: 'NEUROLOGIA', label: 'Neurologia', icon: Brain },
-  { value: 'NUTROLOGIA', label: 'Nutrologia', icon: Apple },
-  { value: 'OFTALMOLOGIA', label: 'Oftalmologia', icon: Eye },
+  { label: 'Neurologia', icon: Brain },
+  { label: 'Nutrologia', icon: Apple },
+  { label: 'Oftalmologia', icon: Eye },
   {
-    value: 'ONCOLOGIA_CLINICA',
     label: 'Oncologia Clínica',
     icon: Pill,
   },
   {
-    value: 'ORTOPEDIA_TRAUMATOLOGIA',
     label: 'Ortopedia e Traumatologia',
     icon: Bone,
   },
   {
-    value: 'OTORRINOLARINGOLOGIA',
     label: 'Otorrinolaringologia',
     icon: Ear,
   },
-  { value: 'PATOLOGIA', label: 'Patologia', icon: Microscope },
+  { label: 'Patologia', icon: Microscope },
   {
-    value: 'PATOLOGIA_CLINICA',
     label: 'Patologia Clínica/Medicina Laboratorial',
     icon: TestTube2,
   },
-  { value: 'PEDIATRIA', label: 'Pediatria', icon: Baby },
-  { value: 'PNEUMOLOGIA', label: 'Pneumologia', icon: Wind },
+  { label: 'Pediatria', icon: Baby },
+  { label: 'Pneumologia', icon: Wind },
   {
-    value: 'PSIQUIATRIA',
     label: 'Psiquiatria',
     icon: BrainCircuit,
   },
   {
-    value: 'RADIOLOGIA',
     label: 'Radiologia e Diagnóstico por Imagem',
     icon: Skull,
   },
   {
-    value: 'RADIOTERAPIA',
     label: 'Radioterapia',
     icon: Radiation,
   },
   {
-    value: 'REUMATOLOGIA',
     label: 'Reumatologia',
     icon: BoneIcon,
   },
-  { value: 'UROLOGIA', label: 'Urologia', icon: DefaultIcon },
+  { label: 'Urologia', icon: DefaultIcon },
 ];
