@@ -1,6 +1,8 @@
 'use client';
 
+import { upsertDoctor } from '@/actions/doctor';
 import LoaderIcon from '@/components/loader';
+import SpecialtyCardsSelect from '@/components/specialty-cards-select';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -28,18 +30,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { medicalSpecialties } from '@/constants/specialties';
 import { weekDays } from '@/constants/weekdays';
 import { Doctor } from '@/types/drizzle';
 import { generateTimeArray } from '@/utils/time';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useAction } from 'next-safe-action/hooks';
 import { ReactNode, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { useAction } from 'next-safe-action/hooks';
-import { upsertDoctor } from '@/actions/doctor';
 
 const ScheduleTimes = {
   Manhã: generateTimeArray(5, 13, 30),
@@ -131,7 +131,7 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Adicionar médico</DialogTitle>
           <DialogDescription>
@@ -153,65 +153,51 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="specialty"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Especialidade</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione uma especialidade" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {medicalSpecialties.map((specialty) => (
-                          <SelectItem
-                            value={specialty.value}
-                            key={specialty.value}
-                          >
-                            {specialty.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="appointmentPriceInCents"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preço da Consulta</FormLabel>
-                  <FormControl>
-                    <NumericFormat
-                      placeholder="Digite preço da consulta"
-                      value={field.value || ''}
-                      onValueChange={(value) => {
-                        field.onChange(value.floatValue);
-                      }}
-                      decimalScale={2}
-                      fixedDecimalScale
-                      decimalSeparator=","
-                      allowNegative={false}
-                      allowLeadingZeros={false}
-                      thousandSeparator="."
-                      customInput={Input}
-                      prefix="R$"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="specialty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Especialidade</FormLabel>
+                    <FormControl>
+                      <SpecialtyCardsSelect
+                        initialValue={field.value}
+                        onSelect={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="appointmentPriceInCents"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço da Consulta</FormLabel>
+                    <FormControl>
+                      <NumericFormat
+                        placeholder="Digite preço da consulta"
+                        value={field.value || ''}
+                        onValueChange={(value) => {
+                          field.onChange(value.floatValue);
+                        }}
+                        decimalScale={2}
+                        fixedDecimalScale
+                        decimalSeparator=","
+                        allowNegative={false}
+                        allowLeadingZeros={false}
+                        thousandSeparator="."
+                        customInput={Input}
+                        prefix="R$"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <FormField
                 control={form.control}
