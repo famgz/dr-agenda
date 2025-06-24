@@ -11,10 +11,10 @@ export async function getSessionUser() {
   return session?.user;
 }
 
-export async function getSessionUserElseThrow() {
+export async function getSessionUserElseThrow(message = 'Unauthorized') {
   const user = await getSessionUser();
   if (!user) {
-    throw new Error('Unauthenticated');
+    throw new Error(message);
   }
   return user;
 }

@@ -1,3 +1,5 @@
+import { getSessionUserElseRedirect } from '@/actions/user';
+import UpsertDoctorFormDialog from '@/app/(private)/doctors/_components/upsert-doctor-form-dialog';
 import {
   PageActions,
   PageContainer,
@@ -10,7 +12,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-react';
 
+import { redirect } from 'next/navigation';
+
 export default async function DoctorsPage() {
+  const user = await getSessionUserElseRedirect();
+  const clinic = user.clinic;
+
+  if (!clinic) {
+    redirect('/clinic-form');
+  }
+
   return (
     <PageContainer>
       <PageHeader>
@@ -19,10 +30,12 @@ export default async function DoctorsPage() {
           <PageDescription>Gerencie os médicos da sua clínica</PageDescription>
         </PageHeaderContent>
         <PageActions>
-          <Button>
-            <PlusIcon />
-            Adicionar Médico
-          </Button>
+          <UpsertDoctorFormDialog>
+            <Button>
+              <PlusIcon />
+              Adicionar Médico
+            </Button>
+          </UpsertDoctorFormDialog>
         </PageActions>
       </PageHeader>
       <PageContent>

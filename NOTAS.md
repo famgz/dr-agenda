@@ -45,9 +45,23 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 
 `npx shadcn@latest add sidebar`
 
+`npx shadcn@latest add dialog`
+
+`npx shadcn@latest add select`
+
 
 ## Auth
 
 `npm i better-auth`
 
 `npx @better-auth/cli@latest generate`
+
+
+## Format
+
+`npm i react-number-format`
+
+
+## Actions
+
+`npm i next-safe-action`
