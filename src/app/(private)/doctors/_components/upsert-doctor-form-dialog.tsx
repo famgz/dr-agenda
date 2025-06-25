@@ -92,11 +92,8 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: getDefaultValues(),
-  });
-
-  function getDefaultValues() {
-    return {
+    shouldUnregister: true,
+    defaultValues: {
       id: doctor?.id ?? '',
       name: doctor?.name ?? '',
       specialty: doctor?.specialty ?? '',
@@ -107,8 +104,8 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
       availableToWeekDay: doctor?.availableToWeekDay ?? -1,
       availableFromTime: doctor?.availableFromTime ?? '',
       availableToTime: doctor?.availableToTime ?? '',
-    };
-  }
+    },
+  });
 
   const submitAction = useAction(upsertDoctor, {
     onSuccess: () => {
