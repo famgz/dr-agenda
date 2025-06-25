@@ -1,6 +1,7 @@
 'use client';
 
 import { upsertDoctor } from '@/actions/doctor';
+import DeleteDoctorButton from '@/app/(private)/doctors/_components/delete-doctor-button';
 import LoaderIcon from '@/components/loader';
 import SpecialtyCardsSelect from '@/components/specialty-cards-select';
 import { Button } from '@/components/ui/button';
@@ -359,6 +360,7 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
               >
                 Cancelar
               </Button>
+              {!!doctor && <DeleteDoctorButton doctor={doctor} />}
               <Button type="submit" disabled={isSubmitting}>
                 <span>Salvar médico</span>
                 {isSubmitting && <LoaderIcon />}

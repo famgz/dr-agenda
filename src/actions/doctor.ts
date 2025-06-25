@@ -1,11 +1,15 @@
 'use server';
 
-import { getSessionUserClinicElseThrow } from '@/actions/session';
+import {
+  getSessionUserClinicElseThrow,
+  getSessionUserElseThrow,
+} from '@/actions/session';
 import { db } from '@/db';
 import { doctorTable } from '@/db/schema';
 import { actionClient } from '@/lib/safe-action';
+import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { string, z } from 'zod';
 
 const upsertDoctorSchema = z
   .object({
@@ -40,6 +44,10 @@ const upsertDoctorSchema = z
     }
   });
 
+const deleteDoctorSchema = z.object({
+  id: string().uuid(),
+});
+
 export const upsertDoctor = actionClient
   .inputSchema(upsertDoctorSchema)
   .action(async ({ parsedInput }) => {
@@ -52,5 +60,22 @@ export const upsertDoctor = actionClient
         target: [doctorTable.id],
         set: parsedInput,
       });
+    revalidatePath('/doctors');
+  });
+
+export const deleteDoctor = actionClient
+  .inputSchema(deleteDoctorSchema)
+  .action(async ({ parsedInput }) => {
+    const clinic = await getSessionUserClinicElseThrow();
+    const doctor = await db.query.doctorTable.findFirst({
+      where: eq(doctorTable.id, parsedInput.id),
+    });
+    if (!doctor) {
+      throw new Error('Doctor not found');
+    }
+    if (doctor.clinicId !== clinic.clinicId) {
+      throw new Error('Doctor belongs to another user');
+    }
+    await db.delete(doctorTable).where(eq(doctorTable.id, parsedInput.id));
     revalidatePath('/doctors');
   });
