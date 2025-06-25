@@ -121,29 +121,26 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    submitAction.execute(values);
-  }
-
   const isSubmitting = useMemo(
     () => form.formState.isSubmitting || submitAction.isPending,
-    [form.formState.isSubmitting, submitAction.isPending],
+    [form.formState, submitAction.isPending],
   );
 
-  useEffect(() => {
-    if (open) {
-      form.reset(getDefaultValues());
-    }
-  }, [open, doctor]);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    submitAction.execute(values);
+    submitAction.reset(); // it appears to avoid the toast.success double render
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Adicionar médico</DialogTitle>
+          <DialogTitle>{doctor ? doctor.name : 'Adicionar médico'}</DialogTitle>
           <DialogDescription>
-            Adicione um novo médico para fazer parte de sua clínica
+            {doctor
+              ? 'Atualizar informações do médico'
+              : 'Adicione um novo médico para fazer parte de sua clínica'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -357,10 +354,19 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
                 )}
               />
             </div>
-            <Button type="submit" disabled={isSubmitting}>
-              <span>Salvar médico</span>
-              {isSubmitting && <LoaderIcon />}
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant={'outline'}
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                <span>Salvar médico</span>
+                {isSubmitting && <LoaderIcon />}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>
