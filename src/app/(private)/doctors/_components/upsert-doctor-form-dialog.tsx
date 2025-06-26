@@ -50,7 +50,6 @@ const ScheduleTimes = {
 
 const formSchema = z
   .object({
-    id: z.string().optional(),
     name: z.string().trim().min(1, 'Campo obrigatório'),
     specialty: z.string().trim().min(1, 'Campo obrigatório'),
     appointmentPriceInCents: z
@@ -95,7 +94,6 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
     resolver: zodResolver(formSchema),
     shouldUnregister: true,
     defaultValues: {
-      id: doctor?.id ?? '',
       name: doctor?.name ?? '',
       specialty: doctor?.specialty ?? '',
       appointmentPriceInCents: doctor?.appointmentPriceInCents
@@ -125,7 +123,7 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
   );
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    submitAction.execute(values);
+    submitAction.execute({ ...values, id: doctor?.id });
     submitAction.reset(); // it appears to avoid the toast.success double render
   }
 

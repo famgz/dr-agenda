@@ -39,7 +39,6 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  id: z.string().uuid().optional(),
   name: z.string().trim().min(1, 'Campo obrigatório'),
   email: z.string().trim().min(1, 'Campo obrigatório').email(),
   phoneNumber: z.string().trim().min(1, 'Campo obrigatório'),
@@ -57,7 +56,6 @@ export default function UpsertPatientFormDialog({ children, patient }: Props) {
     resolver: zodResolver(formSchema),
     shouldUnregister: true,
     defaultValues: {
-      id: patient?.id ?? '',
       name: patient?.name ?? '',
       email: patient?.email ?? '',
       phoneNumber: patient?.phoneNumber ?? '',
@@ -82,7 +80,7 @@ export default function UpsertPatientFormDialog({ children, patient }: Props) {
   );
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    submitAction.execute(values);
+    submitAction.execute({ ...values, id: patient?.id });
     submitAction.reset();
   }
 
