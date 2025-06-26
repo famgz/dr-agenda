@@ -1,4 +1,5 @@
 import { getSessionUserClinicElseRedirect } from '@/actions/session';
+import { patientTableColumns } from '@/app/(private)/patients/_components/patient-table-columns';
 import UpsertPatientFormDialog from '@/app/(private)/patients/_components/upsert-patient-form-dialog';
 import {
   PageActions,
@@ -10,6 +11,7 @@ import {
   PageTitle,
 } from '@/components/page-container';
 import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import { db } from '@/db';
 import { patientTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -41,10 +43,8 @@ export default async function PatientsPage() {
           </UpsertPatientFormDialog>
         </PageActions>
       </PageHeader>
-      <PageContent className="grid gap-3 !space-y-0 sm:grid-cols-3 xl:grid-cols-4">
-        {patients.map((patient) => (
-          <div key={patient.id}>{patient.name}</div>
-        ))}
+      <PageContent>
+        <DataTable columns={patientTableColumns} data={patients} />
       </PageContent>
     </PageContainer>
   );

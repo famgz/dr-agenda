@@ -1,7 +1,7 @@
 'use client';
 
 import { upsertPatient } from '@/actions/patient';
-import DeletePatientButton from '@/app/(private)/patients/_components/delete-patient-button';
+import DeletePatientDialog from '@/app/(private)/patients/_components/delete-patient-dialog';
 import LoaderIcon from '@/components/loader';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +31,7 @@ import {
 import { sexEnum } from '@/db/schema';
 import { Patient } from '@/types/drizzle';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Trash2Icon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { ReactNode, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -41,7 +42,15 @@ import { z } from 'zod';
 const formSchema = z.object({
   name: z.string().trim().min(1, 'Campo obrigatório'),
   email: z.string().trim().min(1, 'Campo obrigatório').email(),
-  phoneNumber: z.string().trim().min(1, 'Campo obrigatório'),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(1, 'Campo obrigatório')
+    .transform((value) => value.replace(/\D/g, ''))
+    .refine(
+      (value) => value.length === 10 || value.length === 11,
+      'Telefone inválido',
+    ),
   sex: z.enum(sexEnum.enumValues),
 });
 
@@ -188,7 +197,13 @@ export default function UpsertPatientFormDialog({ children, patient }: Props) {
               >
                 Cancelar
               </Button>
-              {!!patient && <DeletePatientButton patient={patient} />}
+              {!!patient && (
+                <DeletePatientDialog patient={patient}>
+                  <Button variant={'outline'}>
+                    <Trash2Icon />
+                  </Button>
+                </DeletePatientDialog>
+              )}
               <Button type="submit" disabled={isSubmitting}>
                 <span>Salvar paciente</span>
                 {isSubmitting && <LoaderIcon />}

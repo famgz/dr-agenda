@@ -14,14 +14,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Patient } from '@/types/drizzle';
 import { useAction } from 'next-safe-action/hooks';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Props {
   patient: Patient;
+  children: ReactNode;
 }
 
-export default function DeletePatientButton({ patient }: Props) {
+export default function DeletePatientDialog({ patient, children }: Props) {
   const [open, setOpen] = useState(false);
 
   const deleteAction = useAction(deletePatient, {
@@ -41,11 +42,7 @@ export default function DeletePatientButton({ patient }: Props) {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant={'destructive'} type="button">
-          Deletar
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Deletar pacient {patient.name}</AlertDialogTitle>
