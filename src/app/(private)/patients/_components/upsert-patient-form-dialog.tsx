@@ -34,6 +34,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAction } from 'next-safe-action/hooks';
 import { ReactNode, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { PatternFormat } from 'react-number-format';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -134,7 +135,16 @@ export default function UpsertPatientFormDialog({ children, patient }: Props) {
                 <FormItem>
                   <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite telefone" {...field} />
+                    <PatternFormat
+                      format="(##) #####-####"
+                      mask="_"
+                      placeholder="(99) 99999-9999"
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value.value);
+                      }}
+                      customInput={Input}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
