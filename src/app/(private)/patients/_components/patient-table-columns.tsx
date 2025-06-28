@@ -57,8 +57,6 @@ export const patientTableColumns: ColumnDef<Patient>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>{patient.name}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <UpsertPatientFormDialog patient={patient}>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
               <EditIcon />

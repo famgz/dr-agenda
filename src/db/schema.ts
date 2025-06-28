@@ -29,6 +29,7 @@ const patientId = uuid('patient_id')
 const doctorId = uuid('doctor_id')
   .notNull()
   .references(() => doctorTable.id, { onDelete: 'cascade' });
+const appointmentPriceInCents = integer('appointment_price_in_cents').notNull();
 
 export const sexEnum = pgEnum('patient_sex', ['male', 'female']);
 
@@ -134,7 +135,7 @@ export const doctorTable = pgTable('doctor', {
   availableFromWeekDay: integer('available_from_week_day').notNull(),
   availableToWeekDay: integer('available_to_week_day').notNull(),
   specialty: text('specialty').notNull(),
-  appointmentPriceInCents: integer('appointment_price_in_cents').notNull(),
+  appointmentPriceInCents,
   clinicId,
   createdAt,
   updatedAt,
@@ -169,6 +170,7 @@ export const patientTableRelations = relations(patientTable, ({ one }) => ({
 export const appointmentTable = pgTable('appointment', {
   id: idUUID,
   date: timestamp('date').notNull(),
+  appointmentPriceInCents,
   clinicId,
   patientId,
   doctorId,

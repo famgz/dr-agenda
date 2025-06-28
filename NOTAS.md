@@ -59,6 +59,8 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 
 `npx shadcn@latest add dropdown-menu`
 
+`npx shadcn@latest add popover calendar`  // date-picker
+
 
 
 ## Auth
@@ -76,3 +78,15 @@ https://www.figma.com/design/0G9SAhJsDPpb9mXORSxxY3/dr.agenda?node-id=29-588&p=f
 ## Actions
 
 `npm i next-safe-action`
+
+
+## Updates
+
+`npm i -g npm-check-updates`
+
+`npm-check-updates -i`
+
+
+## Date
+
+`npm i date-fns`
