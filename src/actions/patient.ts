@@ -3,10 +3,19 @@
 import { getSessionUserClinicElseThrow } from '@/actions/session';
 import { db } from '@/db';
 import { patientTable, sexEnum } from '@/db/schema';
-import { actionClient } from '@/lib/safe-action';
+import { authActionClient, ClinicOwnershipError } from '@/lib/safe-action';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { string, z } from 'zod';
+
+export const getPatients = authActionClient
+  .metadata({ actionName: 'getPatients' })
+  .action(async () => {
+    const clinic = await getSessionUserClinicElseThrow();
+    return await db.query.patientTable.findMany({
+      where: eq(patientTable.clinicId, clinic.clinicId),
+    });
+  });
 
 const upsertPatientSchema = z.object({
   id: z.string().uuid().optional(),
@@ -16,11 +25,8 @@ const upsertPatientSchema = z.object({
   sex: z.enum(sexEnum.enumValues),
 });
 
-const deletePatientSchema = z.object({
-  id: string().uuid(),
-});
-
-export const upsertPatient = actionClient
+export const upsertPatient = authActionClient
+  .metadata({ actionName: 'upsertPatient' })
   .inputSchema(upsertPatientSchema)
   .action(async ({ parsedInput }) => {
     const clinic = await getSessionUserClinicElseThrow();
@@ -35,7 +41,12 @@ export const upsertPatient = actionClient
     revalidatePath('/patients');
   });
 
-export const deletePatient = actionClient
+const deletePatientSchema = z.object({
+  id: string().uuid(),
+});
+
+export const deletePatient = authActionClient
+  .metadata({ actionName: 'deletePatient' })
   .inputSchema(deletePatientSchema)
   .action(async ({ parsedInput }) => {
     const clinic = await getSessionUserClinicElseThrow();
@@ -43,10 +54,10 @@ export const deletePatient = actionClient
       where: eq(patientTable.id, parsedInput.id),
     });
     if (!patient) {
-      throw new Error('Patient not found');
+      throw new Error('Paciente não encontrado');
     }
     if (patient.clinicId !== clinic.clinicId) {
-      throw new Error('Patient belongs to another user');
+      throw new ClinicOwnershipError();
     }
     await db.delete(patientTable).where(eq(patientTable.id, parsedInput.id));
     revalidatePath('/patients');

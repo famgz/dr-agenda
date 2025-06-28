@@ -11,6 +11,7 @@ export async function getSessionUser() {
   return session?.user;
 }
 
+// for use in actions
 export async function getSessionUserElseThrow(message = 'Unauthorized') {
   const user = await getSessionUser();
   if (!user) {
@@ -19,6 +20,7 @@ export async function getSessionUserElseThrow(message = 'Unauthorized') {
   return user;
 }
 
+// for use in pages
 export async function getSessionUserElseRedirect(redirectTo = '/auth') {
   const user = await getSessionUser();
   if (!user) {
@@ -27,8 +29,9 @@ export async function getSessionUserElseRedirect(redirectTo = '/auth') {
   return user;
 }
 
+// for use in actions
 export async function getSessionUserClinicElseThrow(
-  message = 'Clinic not found',
+  message = 'User clinic not found',
 ) {
   const user = await getSessionUserElseThrow();
   const clinic = user.clinic;
@@ -38,6 +41,7 @@ export async function getSessionUserClinicElseThrow(
   return clinic;
 }
 
+// for use in pages
 export async function getSessionUserClinicElseRedirect(
   redirectTo = '/clinic-form',
 ) {

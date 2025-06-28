@@ -1,15 +1,34 @@
 'use server';
 
-import {
-  getSessionUserClinicElseThrow,
-  getSessionUserElseThrow,
-} from '@/actions/session';
+import { getSessionUserClinicElseThrow } from '@/actions/session';
 import { db } from '@/db';
 import { doctorTable } from '@/db/schema';
-import { actionClient } from '@/lib/safe-action';
+import { authActionClient } from '@/lib/safe-action';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { string, z } from 'zod';
+
+export const getDoctors = authActionClient
+  .metadata({ actionName: 'getDoctors' })
+  .action(async () => {
+    const clinic = await getSessionUserClinicElseThrow();
+    return await db.query.doctorTable.findMany({
+      where: eq(doctorTable.clinicId, clinic.clinicId),
+    });
+  });
+
+const doctorByIdSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export const getDoctorById = authActionClient
+  .metadata({ actionName: 'getDoctorById' })
+  .inputSchema(doctorByIdSchema)
+  .action(async ({ parsedInput }) => {
+    return await db.query.doctorTable.findFirst({
+      where: eq(doctorTable.id, parsedInput.id),
+    });
+  });
 
 const upsertDoctorSchema = z
   .object({
@@ -48,7 +67,8 @@ const deleteDoctorSchema = z.object({
   id: string().uuid(),
 });
 
-export const upsertDoctor = actionClient
+export const upsertDoctor = authActionClient
+  .metadata({ actionName: 'upsertDoctor' })
   .inputSchema(upsertDoctorSchema)
   .action(async ({ parsedInput }) => {
     const clinic = await getSessionUserClinicElseThrow();
@@ -63,7 +83,8 @@ export const upsertDoctor = actionClient
     revalidatePath('/doctors');
   });
 
-export const deleteDoctor = actionClient
+export const deleteDoctor = authActionClient
+  .metadata({ actionName: 'deleteDoctor' })
   .inputSchema(deleteDoctorSchema)
   .action(async ({ parsedInput }) => {
     const clinic = await getSessionUserClinicElseThrow();
@@ -74,7 +95,7 @@ export const deleteDoctor = actionClient
       throw new Error('Doctor not found');
     }
     if (doctor.clinicId !== clinic.clinicId) {
-      throw new Error('Doctor belongs to another user');
+      throw new Error('Unauthorized');
     }
     await db.delete(doctorTable).where(eq(doctorTable.id, parsedInput.id));
     revalidatePath('/doctors');
