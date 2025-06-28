@@ -45,7 +45,7 @@ export default function DeletePatientDialog({ patient, children }: Props) {
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Deletar pacient {patient.name}</AlertDialogTitle>
+          <AlertDialogTitle>Deletar paciente {patient.name}</AlertDialogTitle>
           <AlertDialogDescription>
             Deseja realmente eletar o paciente {patient.name}? Esta ação é
             irreversível.
