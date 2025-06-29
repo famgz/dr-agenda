@@ -20,7 +20,7 @@ export default async function AppointmentsPage() {
   const clinic = await getSessionUserClinicElseRedirect();
 
   const [
-    { data: appointments = [] },
+    { data: appointments },
     { data: doctors = [] },
     { data: patients = [] },
   ] = await Promise.all([getAppointments(), getDoctors(), getPatients()]);
@@ -36,7 +36,7 @@ export default async function AppointmentsPage() {
           </PageDescription>
         </PageHeaderContent>
         <PageActions>
-          <UpsertAppointmentFormDialog doctors={doctors!} patients={patients!}>
+          <UpsertAppointmentFormDialog doctors={doctors} patients={patients}>
             <Button>
               <PlusIcon />
               Agendar Consulta
@@ -45,11 +45,15 @@ export default async function AppointmentsPage() {
         </PageActions>
       </PageHeader>
       <PageContent>
-        <AppointmentsTable
-          appointments={appointments}
-          doctors={doctors}
-          patients={patients}
-        />
+        {appointments ? (
+          <AppointmentsTable
+            appointments={appointments}
+            doctors={doctors}
+            patients={patients}
+          />
+        ) : (
+          <p>Erro ao requisitar lista de agendamentos</p>
+        )}
       </PageContent>
     </PageContainer>
   );

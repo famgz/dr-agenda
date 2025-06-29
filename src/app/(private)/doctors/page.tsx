@@ -1,3 +1,4 @@
+import { getDoctors } from '@/actions/doctor';
 import { getSessionUserClinicElseRedirect } from '@/actions/session';
 import DoctorCard from '@/app/(private)/doctors/_components/doctor-card';
 import UpsertDoctorFormDialog from '@/app/(private)/doctors/_components/upsert-doctor-form-dialog';
@@ -19,9 +20,7 @@ import { PlusIcon } from 'lucide-react';
 export default async function DoctorsPage() {
   const clinic = await getSessionUserClinicElseRedirect();
 
-  const doctors = await db.query.doctorTable.findMany({
-    where: eq(doctorTable.clinicId, clinic.clinicId),
-  });
+  const { data: doctors } = await getDoctors();
 
   return (
     <PageContainer>
@@ -43,7 +42,8 @@ export default async function DoctorsPage() {
         </PageActions>
       </PageHeader>
       <PageContent className="grid gap-3 !space-y-0 sm:grid-cols-3 xl:grid-cols-4">
-        {doctors.map((doctor) => (
+        {!doctors && <p>Erro ao requisitar lista de médicos</p>}
+        {doctors?.map((doctor) => (
           <DoctorCard doctor={doctor} key={doctor.id} />
         ))}
       </PageContent>

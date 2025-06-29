@@ -1,3 +1,4 @@
+import { getPatients } from '@/actions/patient';
 import { getSessionUserClinicElseRedirect } from '@/actions/session';
 import { patientTableColumns } from '@/app/(private)/patients/_components/patient-table-columns';
 import UpsertPatientFormDialog from '@/app/(private)/patients/_components/upsert-patient-form-dialog';
@@ -20,9 +21,7 @@ import { PlusIcon } from 'lucide-react';
 export default async function PatientsPage() {
   const clinic = await getSessionUserClinicElseRedirect();
 
-  const patients = await db.query.patientTable.findMany({
-    where: eq(patientTable.clinicId, clinic.clinicId),
-  });
+  const { data: patients } = await getPatients();
 
   return (
     <PageContainer>
@@ -44,7 +43,11 @@ export default async function PatientsPage() {
         </PageActions>
       </PageHeader>
       <PageContent>
-        <DataTable columns={patientTableColumns} data={patients} />
+        {patients ? (
+          <DataTable columns={patientTableColumns} data={patients} />
+        ) : (
+          <p>Erro ao requisitar lista de pacientes</p>
+        )}
       </PageContent>
     </PageContainer>
   );
