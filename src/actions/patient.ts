@@ -4,7 +4,7 @@ import { getSessionUserClinicElseThrow } from '@/actions/session';
 import { db } from '@/db';
 import { patientTable, sexEnum } from '@/db/schema';
 import { authActionClient, ClinicOwnershipError } from '@/lib/safe-action';
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { string, z } from 'zod';
 
@@ -14,6 +14,7 @@ export const getPatients = authActionClient
     const clinic = await getSessionUserClinicElseThrow();
     return await db.query.patientTable.findMany({
       where: eq(patientTable.clinicId, clinic.clinicId),
+      orderBy: [asc(patientTable.name)],
     });
   });
 
