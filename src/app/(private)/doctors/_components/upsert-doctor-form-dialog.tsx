@@ -92,8 +92,11 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    shouldUnregister: true,
-    defaultValues: {
+    defaultValues: getDefaultValues(),
+  });
+
+  function getDefaultValues() {
+    return {
       name: doctor?.name ?? '',
       specialty: doctor?.specialty ?? '',
       appointmentPriceInCents: doctor?.appointmentPriceInCents
@@ -103,8 +106,8 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
       availableToWeekDay: doctor?.availableToWeekDay ?? -1,
       availableFromTime: doctor?.availableFromTime ?? '',
       availableToTime: doctor?.availableToTime ?? '',
-    },
-  });
+    };
+  }
 
   const submitAction = useAction(upsertDoctor, {
     onSuccess: () => {
@@ -126,6 +129,12 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
     submitAction.execute({ ...values, id: doctor?.id });
     submitAction.reset(); // it appears to avoid the toast.success double render
   }
+
+  useEffect(() => {
+    if (open) {
+      form.reset(getDefaultValues());
+    }
+  }, [open, doctor]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -269,7 +278,6 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
                 )}
               />
             </div>
-
             <div className="grid grid-cols-2 gap-3">
               <FormField
                 control={form.control}

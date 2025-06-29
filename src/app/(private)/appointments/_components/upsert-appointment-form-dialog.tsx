@@ -40,7 +40,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 import { toast } from 'sonner';
@@ -72,16 +72,19 @@ export default function UpsertAppointmentFormDialog({
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    shouldUnregister: true,
-    defaultValues: {
+    defaultValues: getDefaultValues(),
+  });
+
+  function getDefaultValues() {
+    return {
       date: appointment?.date,
       appointmentPriceInCents: appointment?.appointmentPriceInCents
         ? appointment.appointmentPriceInCents / 100
         : 0,
       doctorId: appointment?.doctorId ?? '',
       patientId: appointment?.patientId ?? '',
-    },
-  });
+    };
+  }
 
   const submitAction = useAction(upsertAppointment, {
     onSuccess: () => {
@@ -103,6 +106,12 @@ export default function UpsertAppointmentFormDialog({
     submitAction.execute({ ...values, id: appointment?.id });
     submitAction.reset();
   }
+
+  useEffect(() => {
+    if (open) {
+      form.reset(getDefaultValues());
+    }
+  }, [open, appointment]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

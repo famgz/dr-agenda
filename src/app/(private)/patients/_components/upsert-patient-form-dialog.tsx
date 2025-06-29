@@ -30,10 +30,11 @@ import {
 } from '@/components/ui/select';
 import { sexEnum } from '@/db/schema';
 import { Patient } from '@/types/drizzle';
+import { generateTimeArray } from '@/utils/time';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2Icon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { PatternFormat } from 'react-number-format';
 import { toast } from 'sonner';
@@ -63,14 +64,17 @@ export default function UpsertPatientFormDialog({ children, patient }: Props) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    shouldUnregister: true,
-    defaultValues: {
+    defaultValues: getDefaultValues(),
+  });
+
+  function getDefaultValues() {
+    return {
       name: patient?.name ?? '',
       email: patient?.email ?? '',
       phoneNumber: patient?.phoneNumber ?? '',
       sex: patient?.sex,
-    },
-  });
+    };
+  }
 
   const submitAction = useAction(upsertPatient, {
     onSuccess: () => {
@@ -92,6 +96,12 @@ export default function UpsertPatientFormDialog({ children, patient }: Props) {
     submitAction.execute({ ...values, id: patient?.id });
     submitAction.reset();
   }
+
+  useEffect(() => {
+    if (open) {
+      form.reset(getDefaultValues());
+    }
+  }, [open, patient]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
