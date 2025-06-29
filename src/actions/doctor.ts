@@ -3,7 +3,7 @@
 import { getSessionUserClinicElseThrow } from '@/actions/session';
 import { db } from '@/db';
 import { doctorTable } from '@/db/schema';
-import { authActionClient } from '@/lib/safe-action';
+import { authActionClient, ClinicOwnershipError } from '@/lib/safe-action';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { string, z } from 'zod';
@@ -12,9 +12,14 @@ export const getDoctors = authActionClient
   .metadata({ actionName: 'getDoctors' })
   .action(async () => {
     const clinic = await getSessionUserClinicElseThrow();
-    return await db.query.doctorTable.findMany({
+    const doctors = await db.query.doctorTable.findMany({
       where: eq(doctorTable.clinicId, clinic.clinicId),
     });
+    doctors.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    return doctors;
   });
 
 const doctorByIdSchema = z.object({
