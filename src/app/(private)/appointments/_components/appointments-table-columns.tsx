@@ -14,6 +14,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { EditIcon, EllipsisVerticalIcon } from 'lucide-react';
 
 import { Doctor, Patient } from '@/types/drizzle';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface Props {
   doctors: Doctor[];
@@ -33,7 +35,7 @@ export function appointmentsTableColumns({
         row: {
           original: { date },
         },
-      }) => date.toLocaleString(),
+      }) => format(date, '	Pp', { locale: ptBR }),
     },
     {
       id: 'doctor',
