@@ -18,8 +18,8 @@ export const actionClient = createSafeActionClient({
     console.error(e);
     return e.message;
   },
+  defaultValidationErrorsShape: 'flattened',
 }).use(async ({ next, clientInput, metadata }) => {
-  console.log('[LOGGING ACTION MIDDLEWARE]');
   const startTime = performance.now();
   const result = await next();
   const endTime = performance.now();
@@ -29,7 +29,10 @@ export const actionClient = createSafeActionClient({
     result,
     duration: `${endTime - startTime} ms`,
   };
-  console.log(results);
+  console.log(
+    `[LOGGING ACTION MIDDLEWARE] ${new Date().toISOString()}`,
+    results,
+  );
   return result;
 });
 
