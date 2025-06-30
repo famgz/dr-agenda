@@ -32,6 +32,12 @@ const doctorId = uuid('doctor_id')
 const appointmentPriceInCents = integer('appointment_price_in_cents').notNull();
 
 export const sexEnum = pgEnum('patient_sex', ['male', 'female']);
+export const statusEnum = pgEnum('appointment_status', [
+  'scheduled',
+  'completed',
+  'cancelled',
+  'no_show',
+]);
 
 // Tables
 
@@ -171,6 +177,7 @@ export const appointmentTable = pgTable('appointment', {
   id: idUUID,
   date: timestamp('date').notNull(),
   appointmentPriceInCents,
+  status: statusEnum('status').notNull().default('scheduled'),
   clinicId,
   patientId,
   doctorId,

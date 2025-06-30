@@ -9,6 +9,7 @@ import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import dayjs from 'dayjs';
+import { statusEnum } from '@/db/schema';
 
 export const getAppointments = authActionClient
   .metadata({ actionName: 'getAppointments' })
@@ -23,6 +24,7 @@ export const getAppointments = authActionClient
 
 const upsertAppointmentSchema = z.object({
   id: z.string().uuid().optional(),
+  status: z.enum(statusEnum.enumValues).optional(),
   date: z.date(),
   time: z
     .string()
