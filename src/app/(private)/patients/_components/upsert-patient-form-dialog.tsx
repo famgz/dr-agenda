@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select';
 import { sexEnum } from '@/db/schema';
 import { Patient } from '@/types/drizzle';
-import { generateTimeArray } from '@/utils/time';
+import { getFirstErrorMessage } from '@/utils/error';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2Icon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
@@ -83,7 +83,9 @@ export default function UpsertPatientFormDialog({ children, patient }: Props) {
     },
     onError: (error) => {
       console.error(error);
-      toast.error('Erro ao atualizar lista de pacientes');
+      toast.error(
+        'Erro ao atualizar lista de pacientes' + getFirstErrorMessage(error),
+      );
     },
   });
 

@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/select';
 import { weekDays } from '@/constants/weekdays';
 import { Doctor } from '@/types/drizzle';
+import { getFirstErrorMessage } from '@/utils/error';
 import { generateTimeArray } from '@/utils/time';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAction } from 'next-safe-action/hooks';
@@ -64,8 +65,14 @@ const formSchema = z
       .number()
       .min(0, 'Campo inválido')
       .max(6, 'Campo inválido'),
-    availableFromTime: z.string().trim().min(1, 'Campo obrigatório'),
-    availableToTime: z.string().trim().min(1, 'Campo obrigatório'),
+    availableFromTime: z
+      .string()
+      .min(1, 'Campo obrigatório')
+      .regex(/^([01]?\d|2[0-3]):[0-5]\d:[0-5]\d$/, 'Formato inválido'),
+    availableToTime: z
+      .string()
+      .min(1, 'Campo obrigatório')
+      .regex(/^([01]?\d|2[0-3]):[0-5]\d:[0-5]\d$/, 'Formato inválido'),
   })
   .superRefine((data, ctx) => {
     if (data.availableFromTime > data.availableToTime) {
@@ -116,7 +123,9 @@ export default function UpsertDoctorFormDialog({ children, doctor }: Props) {
     },
     onError: (error) => {
       console.error(error);
-      toast.error('Erro ao atualizar lista de médicos');
+      toast.error(
+        'Erro ao atualizar lista de médicos' + getFirstErrorMessage(error),
+      );
     },
   });
 

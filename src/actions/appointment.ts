@@ -8,6 +8,7 @@ import { authActionClient, ClinicOwnershipError } from '@/lib/safe-action';
 import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import dayjs from 'dayjs';
 
 export const getAppointments = authActionClient
   .metadata({ actionName: 'getAppointments' })
@@ -23,6 +24,10 @@ export const getAppointments = authActionClient
 const upsertAppointmentSchema = z.object({
   id: z.string().uuid().optional(),
   date: z.date(),
+  time: z
+    .string()
+    .min(1, 'Campo obrigatório')
+    .regex(/^([01]?\d|2[0-3]):[0-5]\d:[0-5]\d$/, 'Formato de horário inválido'),
   appointmentPriceInCents: z.number(),
   patientId: z.string().uuid(),
   doctorId: z.string().uuid(),
@@ -40,7 +45,15 @@ export const upsertAppointment = authActionClient
     if (doctor?.clinicId !== clinic.clinicId) {
       throw new ClinicOwnershipError();
     }
-    const data = { ...parsedInput, clinicId: clinic.clinicId };
+    const appointmentDateTime = dayjs(parsedInput.date)
+      .set('hour', parseInt(parsedInput.time.split(':')[0]))
+      .set('minute', parseInt(parsedInput.time.split(':')[1]))
+      .toDate();
+    const data = {
+      ...parsedInput,
+      date: appointmentDateTime,
+      clinicId: clinic.clinicId,
+    };
     await db
       .insert(appointmentTable)
       .values(data)

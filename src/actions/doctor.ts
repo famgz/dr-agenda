@@ -45,8 +45,14 @@ const upsertDoctorSchema = z
       .number()
       .min(0, 'Campo inválido')
       .max(6, 'Campo inválido'),
-    availableFromTime: z.string().trim().min(1, 'Campo obrigatório'),
-    availableToTime: z.string().trim().min(1, 'Campo obrigatório'),
+    availableFromTime: z
+      .string()
+      .min(1, 'Campo obrigatório')
+      .regex(/^([01]?\d|2[0-3]):[0-5]\d:[0-5]\d$/, 'Formato inválido'),
+    availableToTime: z
+      .string()
+      .min(1, 'Campo obrigatório')
+      .regex(/^([01]?\d|2[0-3]):[0-5]\d:[0-5]\d$/, 'Formato inválido'),
   })
   .superRefine((data, ctx) => {
     if (data.availableFromTime > data.availableToTime) {

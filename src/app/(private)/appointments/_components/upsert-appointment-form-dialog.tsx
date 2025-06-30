@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -36,8 +35,11 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { Appointment, Doctor, Patient } from '@/types/drizzle';
+import { getFirstErrorMessage } from '@/utils/error';
+import { generateTimeArray } from '@/utils/time';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -48,12 +50,16 @@ import { z } from 'zod';
 
 const formSchema = z.object({
   date: z.date({ required_error: 'Campo obrigatório' }),
+  time: z
+    .string()
+    .min(1, 'Campo obrigatório')
+    .regex(/^([01]?\d|2[0-3]):[0-5]\d:[0-5]\d$/, 'Formato inválido'),
   appointmentPriceInCents: z
     .number()
     .min(1, 'Campo obrigatório')
     .transform((value) => value * 100),
-  doctorId: z.string().uuid().min(1, 'Campo obrigatório'),
-  patientId: z.string().uuid().min(1, 'Campo obrigatório'),
+  doctorId: z.string().min(1, 'Campo obrigatório').uuid(),
+  patientId: z.string().min(1, 'Campo obrigatório').uuid(),
 });
 
 interface Props {
@@ -81,10 +87,25 @@ export default function UpsertAppointmentFormDialog({
       appointmentPriceInCents: appointment?.appointmentPriceInCents
         ? appointment.appointmentPriceInCents / 100
         : 0,
+      time: '',
       doctorId: appointment?.doctorId ?? '',
       patientId: appointment?.patientId ?? '',
     };
   }
+
+  const watchedDoctorId = form.watch('doctorId');
+
+  const doctorScheduleTimes = useMemo(() => {
+    const doctor = doctors?.find((doctor) => doctor.id === watchedDoctorId);
+    if (!doctor) {
+      return undefined;
+    }
+    return generateTimeArray(
+      Number(doctor.availableFromTime.split(':')[0]),
+      Number(doctor.availableToTime.split(':')[0]),
+      30,
+    );
+  }, [watchedDoctorId]);
 
   const submitAction = useAction(upsertAppointment, {
     onSuccess: () => {
@@ -93,7 +114,10 @@ export default function UpsertAppointmentFormDialog({
     },
     onError: (error) => {
       console.error(error);
-      toast.error('Erro ao atualizar lista de agendamentos');
+      toast.error(
+        'Erro ao atualizar lista de agendamentos ' +
+          getFirstErrorMessage(error),
+      );
     },
   });
 
@@ -103,9 +127,26 @@ export default function UpsertAppointmentFormDialog({
   );
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    submitAction.execute({ ...values, id: appointment?.id });
+    submitAction.execute({ ...values, id: appointment?.id, time: 'booze' });
     submitAction.reset();
   }
+
+  useEffect(() => {
+    function updatePriceOnDoctorChange() {
+      if (watchedDoctorId) {
+        const doctor = doctors?.find((doctor) => doctor.id === watchedDoctorId);
+        form.setValue(
+          'appointmentPriceInCents',
+          doctor?.appointmentPriceInCents
+            ? doctor?.appointmentPriceInCents / 100
+            : 0,
+        );
+      } else {
+        form.setValue('appointmentPriceInCents', 0);
+      }
+    }
+    updatePriceOnDoctorChange();
+  }, [watchedDoctorId]);
 
   useEffect(() => {
     if (open) {
@@ -129,74 +170,6 @@ export default function UpsertAppointmentFormDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-2 gap-2">
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Data da consulta</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn(
-                              'w-[240px] pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground',
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, 'PPP')
-                            ) : (
-                              <span>Selecione uma data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                          captionLayout="dropdown"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="appointmentPriceInCents"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Preço da Consulta</FormLabel>
-                    <FormControl>
-                      <NumericFormat
-                        placeholder="Digite preço da consulta"
-                        value={field.value || ''}
-                        onValueChange={(value) => {
-                          field.onChange(value.floatValue);
-                        }}
-                        decimalScale={2}
-                        fixedDecimalScale
-                        decimalSeparator=","
-                        allowNegative={false}
-                        allowLeadingZeros={false}
-                        thousandSeparator="."
-                        customInput={Input}
-                        prefix="R$"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
             <FormField
               control={form.control}
               name="doctorId"
@@ -258,6 +231,112 @@ export default function UpsertAppointmentFormDialog({
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-3 gap-2">
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Data da consulta</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={'outline'}
+                            disabled={!watchedDoctorId}
+                            className={cn(
+                              'pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground',
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, 'PPP', { locale: ptBR })
+                            ) : (
+                              <span>Selecione uma data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date() || !watchedDoctorId
+                          }
+                          captionLayout="dropdown"
+                          formatters={{
+                            formatMonthDropdown: (date) =>
+                              date.toLocaleString('pt-BR', { month: 'long' }),
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Horário da consulta</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={!watchedDoctorId}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione o horário" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {doctorScheduleTimes?.map((time) => (
+                            <SelectItem value={time.value} key={time.value}>
+                              {time.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="appointmentPriceInCents"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço da Consulta</FormLabel>
+                    <FormControl>
+                      <NumericFormat
+                        placeholder="Digite o preço"
+                        value={field.value || ''}
+                        onValueChange={(value) => {
+                          field.onChange(value.floatValue);
+                        }}
+                        decimalScale={2}
+                        disabled={!watchedDoctorId}
+                        fixedDecimalScale
+                        decimalSeparator=","
+                        allowNegative={false}
+                        allowLeadingZeros={false}
+                        thousandSeparator="."
+                        customInput={Input}
+                        prefix="R$"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="flex justify-end gap-2">
               <Button
                 type="button"
