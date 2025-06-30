@@ -54,12 +54,14 @@ export const upsertAppointment = authActionClient
       date: appointmentDateTime,
       clinicId: clinic.clinicId,
     };
-    await db
+    const res = await db
       .insert(appointmentTable)
       .values(data)
       .onConflictDoUpdate({
         target: [appointmentTable.id],
-        set: parsedInput,
-      });
+        set: data,
+      })
+      .returning();
     revalidatePath('/appointments');
+    return res;
   });
