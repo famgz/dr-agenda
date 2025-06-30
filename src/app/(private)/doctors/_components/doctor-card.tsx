@@ -13,7 +13,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Doctor } from '@/types/drizzle';
 import { toReal } from '@/utils/money';
-import { getWeekDayByNumber, reduceDoctorTimeString } from '@/utils/time';
+import { getWeekDayByNumber, reduceAppointmentTimeString } from '@/utils/time';
 import { CalendarIcon, ClockIcon, DollarSignIcon } from 'lucide-react';
 
 interface Props {
@@ -50,8 +50,8 @@ export default function DoctorCard({ doctor }: Props) {
         </Badge>
         <Badge variant={'outline'}>
           <ClockIcon className="mr-1" />
-          De {reduceDoctorTimeString(doctor.availableFromTime)} a{' '}
-          {reduceDoctorTimeString(doctor.availableToTime)}
+          De {reduceAppointmentTimeString(doctor.availableFromTime)} a{' '}
+          {reduceAppointmentTimeString(doctor.availableToTime)}
         </Badge>
         <Badge variant={'outline'}>
           <DollarSignIcon className="mr-1" />

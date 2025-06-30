@@ -40,6 +40,17 @@ export function getWeekDayByNumber(weekDayInNumber: number) {
   );
 }
 
-export function reduceDoctorTimeString(time: string) {
+export function reduceAppointmentTimeString(time: string) {
   return time.slice(0, 5);
+}
+
+export function getAppointmentTimeStringFromDate(date: Date) {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const value = [
+    hours.toString().padStart(2, '0'),
+    minutes.toString().padStart(2, '0'),
+    '00',
+  ].join(':');
+  return value;
 }

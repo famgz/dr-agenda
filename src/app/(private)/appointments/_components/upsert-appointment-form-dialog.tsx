@@ -36,7 +36,10 @@ import {
 import { cn } from '@/lib/utils';
 import { Appointment, Doctor, Patient } from '@/types/drizzle';
 import { getFirstErrorMessage } from '@/utils/error';
-import { generateTimeArray } from '@/utils/time';
+import {
+  generateTimeArray,
+  getAppointmentTimeStringFromDate,
+} from '@/utils/time';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -49,7 +52,10 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  date: z.date({ required_error: 'Campo obrigatório' }),
+  date: z
+    .date()
+    .nullable()
+    .refine((val) => val !== null, { message: 'Campo obrigatório' }),
   time: z
     .string()
     .min(1, 'Campo obrigatório')
@@ -61,6 +67,10 @@ const formSchema = z.object({
   doctorId: z.string().min(1, 'Campo obrigatório').uuid(),
   patientId: z.string().min(1, 'Campo obrigatório').uuid(),
 });
+
+type FormSchema = Omit<z.infer<typeof formSchema>, 'date'> & {
+  date: Date | null;
+};
 
 interface Props {
   children: ReactNode;
@@ -76,18 +86,21 @@ export default function UpsertAppointmentFormDialog({
   patients,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const form = useForm<z.infer<typeof formSchema>>({
+  const [modalJustOpened, setModalJustOpened] = useState(false);
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: getDefaultValues(),
   });
 
   function getDefaultValues() {
     return {
-      date: appointment?.date,
+      date: appointment?.date ?? null,
       appointmentPriceInCents: appointment?.appointmentPriceInCents
         ? appointment.appointmentPriceInCents / 100
         : 0,
-      time: '',
+      time: appointment?.date
+        ? getAppointmentTimeStringFromDate(appointment.date)
+        : '',
       doctorId: appointment?.doctorId ?? '',
       patientId: appointment?.patientId ?? '',
     };
@@ -98,13 +111,22 @@ export default function UpsertAppointmentFormDialog({
   const doctorScheduleTimes = useMemo(() => {
     const doctor = doctors?.find((doctor) => doctor.id === watchedDoctorId);
     if (!doctor) {
-      return undefined;
+      return [];
     }
-    return generateTimeArray(
+    const times = generateTimeArray(
       Number(doctor.availableFromTime.split(':')[0]),
       Number(doctor.availableToTime.split(':')[0]),
       30,
     );
+    // persist original appointment time if switch back to the initial doctor
+    if (appointment && watchedDoctorId === appointment.doctorId) {
+      const savedTime = getAppointmentTimeStringFromDate(appointment.date);
+      const isTimeIncluded = times.some((time) => time.value === savedTime);
+      if (savedTime && !isTimeIncluded) {
+        times.push({ value: savedTime, label: savedTime.slice(0, 5) });
+      }
+    }
+    return times;
   }, [watchedDoctorId]);
 
   const submitAction = useAction(upsertAppointment, {
@@ -126,27 +148,32 @@ export default function UpsertAppointmentFormDialog({
     [form.formState, submitAction.isPending],
   );
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    submitAction.execute({ ...values, id: appointment?.id, time: 'booze' });
+  async function onSubmit(values: FormSchema) {
+    submitAction.execute({
+      ...values,
+      id: appointment?.id,
+      date: values.date!,
+    });
     submitAction.reset();
   }
 
   useEffect(() => {
-    function updatePriceOnDoctorChange() {
-      if (watchedDoctorId) {
-        const doctor = doctors?.find((doctor) => doctor.id === watchedDoctorId);
-        form.setValue(
-          'appointmentPriceInCents',
-          doctor?.appointmentPriceInCents
-            ? doctor?.appointmentPriceInCents / 100
-            : 0,
-        );
-      } else {
-        form.setValue('appointmentPriceInCents', 0);
-      }
+    if (modalJustOpened) {
+      setModalJustOpened(false);
+      return;
     }
-    updatePriceOnDoctorChange();
-  }, [watchedDoctorId]);
+    form.setValue('time', '');
+    form.setValue('date', null);
+    const doctor = watchedDoctorId
+      ? doctors?.find((d) => d.id === watchedDoctorId)
+      : null;
+    form.setValue(
+      'appointmentPriceInCents',
+      doctor?.appointmentPriceInCents
+        ? doctor.appointmentPriceInCents / 100
+        : 0,
+    );
+  }, [watchedDoctorId, doctors, modalJustOpened]);
 
   useEffect(() => {
     if (open) {
@@ -261,7 +288,7 @@ export default function UpsertAppointmentFormDialog({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={field.value}
+                          selected={field.value ?? undefined}
                           onSelect={field.onChange}
                           disabled={(date) =>
                             date < new Date() || !watchedDoctorId
@@ -287,7 +314,7 @@ export default function UpsertAppointmentFormDialog({
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                         disabled={!watchedDoctorId}
                       >
                         <FormControl>
