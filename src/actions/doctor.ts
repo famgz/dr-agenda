@@ -77,33 +77,45 @@ const deleteDoctorSchema = z.object({
 export const upsertDoctor = authActionClient
   .metadata({ actionName: 'upsertDoctor' })
   .inputSchema(upsertDoctorSchema)
-  .action(async ({ parsedInput }) => {
-    const clinic = await getSessionUserClinicElseThrow();
-    const data = { ...parsedInput, clinicId: clinic.clinicId };
-    await db
-      .insert(doctorTable)
-      .values(data)
-      .onConflictDoUpdate({
-        target: [doctorTable.id],
-        set: parsedInput,
-      });
-    revalidatePath('/doctors');
-  });
+  .action(
+    async ({ parsedInput }) => {
+      const clinic = await getSessionUserClinicElseThrow();
+      const data = { ...parsedInput, clinicId: clinic.clinicId };
+      await db
+        .insert(doctorTable)
+        .values(data)
+        .onConflictDoUpdate({
+          target: [doctorTable.id],
+          set: parsedInput,
+        });
+    },
+    {
+      onSuccess: async () => {
+        revalidatePath('/doctors');
+      },
+    },
+  );
 
 export const deleteDoctor = authActionClient
   .metadata({ actionName: 'deleteDoctor' })
   .inputSchema(deleteDoctorSchema)
-  .action(async ({ parsedInput }) => {
-    const clinic = await getSessionUserClinicElseThrow();
-    const doctor = await db.query.doctorTable.findFirst({
-      where: eq(doctorTable.id, parsedInput.id),
-    });
-    if (!doctor) {
-      throw new Error('Doctor not found');
-    }
-    if (doctor.clinicId !== clinic.clinicId) {
-      throw new Error('Unauthorized');
-    }
-    await db.delete(doctorTable).where(eq(doctorTable.id, parsedInput.id));
-    revalidatePath('/doctors');
-  });
+  .action(
+    async ({ parsedInput }) => {
+      const clinic = await getSessionUserClinicElseThrow();
+      const doctor = await db.query.doctorTable.findFirst({
+        where: eq(doctorTable.id, parsedInput.id),
+      });
+      if (!doctor) {
+        throw new Error('Doctor not found');
+      }
+      if (doctor.clinicId !== clinic.clinicId) {
+        throw new Error('Unauthorized');
+      }
+      await db.delete(doctorTable).where(eq(doctorTable.id, parsedInput.id));
+    },
+    {
+      onSuccess: async () => {
+        revalidatePath('/doctors');
+      },
+    },
+  );

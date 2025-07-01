@@ -38,32 +38,40 @@ const upsertAppointmentSchema = z.object({
 export const upsertAppointment = authActionClient
   .metadata({ actionName: 'upsertAppointment' })
   .inputSchema(upsertAppointmentSchema)
-  .action(async ({ parsedInput }) => {
-    const clinic = await getSessionUserClinicElseThrow();
-    const { data: doctor } = await getDoctorById({ id: parsedInput.doctorId });
-    if (!doctor) {
-      throw new Error('Médico não encontrado');
-    }
-    if (doctor?.clinicId !== clinic.clinicId) {
-      throw new ClinicOwnershipError();
-    }
-    const appointmentDateTime = dayjs(parsedInput.date)
-      .set('hour', parseInt(parsedInput.time.split(':')[0]))
-      .set('minute', parseInt(parsedInput.time.split(':')[1]))
-      .toDate();
-    const data = {
-      ...parsedInput,
-      date: appointmentDateTime,
-      clinicId: clinic.clinicId,
-    };
-    const res = await db
-      .insert(appointmentTable)
-      .values(data)
-      .onConflictDoUpdate({
-        target: [appointmentTable.id],
-        set: data,
-      })
-      .returning();
-    revalidatePath('/appointments');
-    return res;
-  });
+  .action(
+    async ({ parsedInput }) => {
+      const clinic = await getSessionUserClinicElseThrow();
+      const { data: doctor } = await getDoctorById({
+        id: parsedInput.doctorId,
+      });
+      if (!doctor) {
+        throw new Error('Médico não encontrado');
+      }
+      if (doctor?.clinicId !== clinic.clinicId) {
+        throw new ClinicOwnershipError();
+      }
+      const appointmentDateTime = dayjs(parsedInput.date)
+        .set('hour', parseInt(parsedInput.time.split(':')[0]))
+        .set('minute', parseInt(parsedInput.time.split(':')[1]))
+        .toDate();
+      const data = {
+        ...parsedInput,
+        date: appointmentDateTime,
+        clinicId: clinic.clinicId,
+      };
+      const res = await db
+        .insert(appointmentTable)
+        .values(data)
+        .onConflictDoUpdate({
+          target: [appointmentTable.id],
+          set: data,
+        })
+        .returning();
+      return res;
+    },
+    {
+      onSuccess: async () => {
+        revalidatePath('/appointments');
+      },
+    },
+  );
